@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>재정 청문회 · 세금은 어떻게</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* fiscal_reform과 같은 팔레트를 이어써서 "재정 청문회" 2부작임을 시각적으로 잇는다.
+     navy(왕권)+gold(인장)+parchment(문서), 위기 강조는 절제된 wine 하나만. */
+  :root{
+    --paper:#f3ecdb; --paper2:#ece2cb; --ink:#2b2417; --ink-soft:#5b5240;
+    --navy:#1f3a5f; --navy-deep:#16283f; --gold:#a9782f; --gold-soft:#c99a4d;
+    --line:#d9cca8; --wine:#7a2e2e; --ok:#3d5c3a;
+    --radius:6px; --radius-sm:4px;
+    --shadow:0 1px 3px rgba(43,36,23,.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:radial-gradient(circle at 20% 10%, var(--paper2) 0%, transparent 60%);
+    color:var(--ink);
+    font-family:'Noto Serif KR', serif;
+    font-size:16px;
+    line-height:1.6;
+    min-height:100vh;
+    display:flex; justify-content:center;
+    padding:20px 12px 60px;
+  }
+  .ui{font-family:'Noto Sans KR', sans-serif;}
+  #app{width:100%; max-width:640px;}
+  .card{
+    background:#fffdf7;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px 20px;
+    margin-bottom:16px;
+  }
+  .badge{
+    display:inline-block; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700;
+    color:var(--navy); background:rgba(31,58,95,.08); border:1px solid rgba(31,58,95,.25);
+    border-radius:999px; padding:3px 12px; margin-bottom:10px; letter-spacing:.02em;
+  }
+  h1{font-size:20px; margin:0 0 6px; color:var(--navy-deep);}
+  h2{font-size:18px; margin:0 0 10px; color:var(--navy-deep);}
+  p{margin:0 0 12px;}
+  .muted{color:var(--ink-soft); font-size:14.5px;}
+  .notice{
+    font-family:'Noto Sans KR',sans-serif; font-size:13px; color:var(--ink-soft);
+    background:rgba(169,120,47,.10); border-left:3px solid var(--gold); border-radius:var(--radius-sm);
+    padding:8px 12px; margin:0 0 12px;
+  }
+  label{display:block; font-family:'Noto Sans KR',sans-serif; font-weight:700; font-size:14px; margin-bottom:6px; color:var(--navy-deep);}
+  input[type=text], textarea{
+    width:100%; font-family:'Noto Serif KR',serif; font-size:16px; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:11px 12px; resize:vertical;
+  }
+  input[type=text]:focus, textarea:focus{outline:2px solid var(--gold-soft); outline-offset:1px;}
+  textarea{min-height:96px;}
+  .btn{
+    font-family:'Noto Sans KR',sans-serif; font-weight:700; font-size:15.5px;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    min-height:48px; padding:0 22px;
+    border-radius:var(--radius-sm); border:1px solid var(--navy);
+    background:var(--navy); color:#fdf9ee; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn:hover{background:var(--navy-deep);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .btn.ghost{background:transparent; color:var(--navy); border-color:var(--line);}
+  .btn.ghost:hover{background:rgba(31,58,95,.06);}
+  .btn-row{display:flex; justify-content:flex-end; gap:10px; margin-top:16px;}
+  .btn-row.between{justify-content:space-between;}
+  .hint-toggle{
+    font-family:'Noto Sans KR',sans-serif; font-size:13.5px; color:var(--gold); background:none;
+    border:none; cursor:pointer; padding:6px 0; text-decoration:underline; text-underline-offset:2px;
+  }
+  .hint-box{
+    font-family:'Noto Sans KR',sans-serif; font-size:13.5px; color:var(--ink-soft);
+    background:rgba(169,120,47,.10); border-radius:var(--radius-sm); padding:10px 12px; margin-top:8px;
+    display:none;
+  }
+  .hint-box.show{display:block;}
+  .progress{font-family:'Noto Sans KR',sans-serif; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;}
+  .opt-card{
+    display:block; width:100%; text-align:left;
+    background:#fffdf7; border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:14px; margin-bottom:10px; cursor:pointer; font-family:'Noto Serif KR',serif; font-size:15.5px; color:var(--ink);
+  }
+  .opt-card:hover{border-color:var(--gold-soft);}
+  .opt-card.selected{
+    border-color:var(--gold); background:rgba(169,120,47,.10);
+    box-shadow:inset 0 0 0 1px var(--gold);
+  }
+  .opt-mark{font-family:'Noto Sans KR',sans-serif; font-weight:700; color:var(--gold); margin-right:6px;}
+  .result-title{font-size:19px; font-weight:700; color:var(--navy-deep); margin-bottom:6px;}
+  .result-tag{
+    display:inline-block; font-family:'Noto Sans KR',sans-serif; font-size:12.5px; font-weight:700;
+    color:#fff; background:var(--gold); border-radius:999px; padding:2px 10px; margin-bottom:10px;
+  }
+  details.terms{
+    font-family:'Noto Sans KR',sans-serif; font-size:13px; color:var(--ink-soft);
+    background:rgba(31,58,95,.06); border-radius:var(--radius-sm); padding:8px 12px; margin:8px 0 14px;
+  }
+  details.terms summary{cursor:pointer; font-weight:700; color:var(--navy);}
+  .compare-table{width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0 6px;}
+  .compare-table th, .compare-table td{border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top;}
+  .compare-table th{font-family:'Noto Sans KR',sans-serif; background:rgba(31,58,95,.06); color:var(--navy-deep);}
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background:var(--navy-deep); color:#fdf9ee; font-family:'Noto Sans KR',sans-serif; font-size:14px;
+    padding:10px 18px; border-radius:var(--radius-sm); box-shadow:var(--shadow); z-index:50; opacity:0; transition:opacity .2s;
+  }
+  .toast.show{opacity:1;}
+  .preview-flag{
+    font-family:'Noto Sans KR',sans-serif; font-size:12.5px; color:var(--wine); text-align:center;
+    border:1px dashed var(--wine); border-radius:var(--radius-sm); padding:6px; margin-bottom:12px;
+  }
+  .center{text-align:center;}
+  .field-error{color:var(--wine); font-size:13px; font-family:'Noto Sans KR',sans-serif; margin:-6px 0 10px; display:none;}
+  .field-error.show{display:block;}
+  .step{display:none;}
+  .step.active{display:block;}
+  a.copy-link{font-family:'Noto Sans KR',sans-serif; font-size:13.5px; color:var(--navy); cursor:pointer; text-decoration:underline;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="previewFlag" class="preview-flag" style="display:none;">🔍 미리보기 모드 — 실제로 기록되지 않습니다</div>
+  <div id="toast" class="toast"></div>
+
+  <!-- 0. 로그인 확인 -->
+  <div class="step" id="step-login">
+    <div class="card">
+      <div class="badge ui">재정 청문회 · 2부</div>
+      <h1>세금은 어떻게 걷을까?</h1>
+      <p class="muted">지난 활동에서 세운 개혁안, 이번엔 그 돈을 어떻게 걷을지 정해볼 차례다.</p>
+      <label class="ui">학번</label>
+      <input type="text" id="inSid" inputmode="numeric" placeholder="예: 20305">
+      <div class="field-error ui" id="errSid">학번 5자리를 입력해줘.</div>
+      <label class="ui">이름</label>
+      <input type="text" id="inName" placeholder="이름 입력">
+      <div class="field-error ui" id="errName">이름을 입력해줘.</div>
+      <div class="btn-row">
+        <button class="btn" id="btnLoginNext">확인하고 시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. 안내 -->
+  <div class="step" id="step-intro">
+    <div class="card">
+      <div class="badge ui">안내</div>
+      <h2>같은 왕, 다른 선택</h2>
+      <p>재정과 군사력을 다시 세우는 방법은 같아도, 나라마다 <strong>세금을 걷는 방식</strong>은 서로 달랐다. 아래 질문 4개에 답하면 당신이 어떤 유형의 왕인지 알 수 있다.</p>
+      <p class="muted">정답은 없다 — 지금 드는 생각대로 골라보자.</p>
+      <div class="btn-row">
+        <button class="btn" id="btnIntroNext">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 퀴즈 -->
+  <div class="step" id="step-quiz">
+    <div class="card">
+      <div class="badge ui">유형 테스트</div>
+      <div class="progress ui" id="quizProgress">1 / 4</div>
+      <h2 id="quizQ"></h2>
+      <div id="quizOpts"></div>
+      <div class="btn-row between">
+        <button class="btn ghost ui" id="btnQuizBack">이전</button>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 결과 -->
+  <div class="step" id="step-result">
+    <div class="card">
+      <div class="badge ui">결과</div>
+      <div class="result-tag ui" id="resultTag"></div>
+      <div class="result-title" id="resultTitle"></div>
+      <p id="resultDesc"></p>
+      <details class="terms" id="resultTerms" style="display:none;">
+        <summary>용어로 더 알아보기</summary>
+        <p style="margin:8px 0 0;">이 사건들은 각각 <strong>청교도혁명(1649)</strong> · <strong>명예혁명(1688)</strong> · <strong>권리장전(1689)</strong>이라고 부른다.</p>
+      </details>
+      <div class="notice ui">이 세 가지는 재정·군사 국가를 만드는 서로 다른 방식일 뿐이다. 어느 하나가 "진짜" 절대왕정이라거나, 셋 사이에 우열이 있는 게 아니다.</div>
+      <div class="btn-row">
+        <button class="btn" id="btnResultNext">다음</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 글쓰기 -->
+  <div class="step" id="step-writing">
+    <div class="card">
+      <div class="badge ui">판단 근거</div>
+      <h2>선택 이유와 예상 결과</h2>
+      <p class="muted">왜 이 유형이 나에게 나왔는지 살펴보고, 이유와 앞으로 예상되는 정치적 결과를 3~4문장으로 적어보자.</p>
+      <textarea id="inWriting" placeholder="예: 나는 세금 정책에 반발이 있을 때 ○○를 골랐다. 왜냐하면... 이런 방식이라면 앞으로..."></textarea>
+      <div class="field-error ui" id="errWriting">3~4문장 정도는 적어야 다음으로 갈 수 있어.</div>
+      <button type="button" class="hint-toggle ui" id="btnHintWriting">💡 막막하면 힌트 보기</button>
+      <div class="hint-box ui" id="hintWriting">
+        스스로 이런 질문을 던져보자 — "이 왕은 시간이 지나면 권력이 세질까, 약해질까?", "귀족과 백성은 이 방식에 만족할까?"
+      </div>
+      <div class="btn-row between" style="margin-top:16px;">
+        <button class="btn ghost ui" id="btnWritingBack">이전</button>
+        <button class="btn" id="btnWritingNext">다음</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 확장질문 + 제출 -->
+  <div class="step" id="step-extend">
+    <div class="card">
+      <div class="badge ui">확장 질문</div>
+      <h2>세 나라, 세 가지 방식</h2>
+      <table class="compare-table ui">
+        <tr><th>영국형</th><td>왕과 의회의 협업 (단, 왕을 두 번 갈아치운 끝에)</td></tr>
+        <tr><th>프랑스형</th><td>왕에게 집중된 권력, 후반엔 재정 악화</td></tr>
+        <tr><th>동유럽형</th><td>신분 질서는 유지한 채 위로부터의 개혁</td></tr>
+      </table>
+      <p>오늘 활동은 여기까지! 다음은 선생님과 함께 이야기해볼 질문이다:</p>
+      <p><strong>"왕과 의회의 협업, 이게 모든 사람에게 평등하게 이득이었을까?"</strong></p>
+      <p class="muted">정답은 없다 — 각자 생각을 들어보며 이야기를 나눠보자.</p>
+      <div class="btn-row between">
+        <button class="btn ghost ui" id="btnExtendBack">이전</button>
+        <button class="btn" id="btnSubmit">제출하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 완료 -->
+  <div class="step" id="step-done">
+    <div class="card center">
+      <div class="badge ui">완료</div>
+      <h2>제출 완료!</h2>
+      <p>수고했어. 오늘 활동은 여기까지 — 다음은 선생님과 함께 확장 질문을 이야기해볼 차례다.</p>
+      <a class="copy-link ui" id="btnCopyWriting">내가 쓴 글 복사하기</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── CONFIG ── */
+  var CONFIG = {
+    SHEET_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec',
+    // 커리큘럼 관리 탭에 등록할 활동 id와 정확히 일치시킬 것.
+    GAME_NAME: '재정군사국가_세금유형'
+  };
+
+  var RESULTS = {
+    england:{
+      title:'영국형 — 왕과 의회가 함께',
+      tag:'영국형',
+      desc:'세금을 걷으려면 의회의 동의가 필요하다. 하지만 이 협업은 한 번에 순탄하게 이뤄진 게 아니다. 세금 문제로 의회와 맞선 왕은 결국 처형당했고, 왕정이 돌아왔지만 다시 전제정치로 흐르자 이번엔 왕을 나라 밖으로 쫓아내고 새 왕을 세웠다. 그렇게 왕을 두 번이나 갈아치운 끝에야 의회의 권한을 법으로 보장하는 합의가 만들어졌다.',
+      showTerms:true
+    },
+    france:{
+      title:'프랑스형 — 왕에게 집중된 권력',
+      tag:'프랑스형',
+      desc:'의회를 무시하고 왕이 직접 결정한다. 강한 상비군과 관료제로 나라 구석구석까지 왕의 명령이 미치게 했고, 베르사유 같은 화려한 궁전으로 권력을 과시했다. 하지만 통치 후반으로 갈수록 전쟁 비용과 사치로 재정은 오히려 나빠졌다.',
+      showTerms:false
+    },
+    eastEurope:{
+      title:'동유럽형 — 위로부터의 개혁',
+      tag:'동유럽형',
+      desc:'농노제 같은 오래된 신분 질서가 오래 유지되면서 재정·군사 국가로 발전하는 속도가 서유럽보다 늦었다. 그러다 계몽사상의 영향을 받은 군주들(프리드리히 2세, 표트르 대제 등)이 나서서 위로부터 개혁을 밀어붙였다.',
+      showTerms:false
+    }
+  };
+
+  // 동점 시 우선순위: england > france > eastEurope (임의 기준 — 필요 시 조정)
+  var TIE_ORDER = ['england','france','eastEurope'];
+
+  var QUIZ = [
+    {
+      q:'세금을 새로 걷으려면 누구의 허락을 받아야 하나요?',
+      opts:[
+        { t:'의회의 동의가 있어야 걷을 수 있다', v:'england' },
+        { t:'왕이 혼자 결정하면 그걸로 끝이다', v:'france' },
+        { t:'귀족의 특권은 그대로 둔 채, 왕이 뽑은 관리가 나서서 걷는다', v:'eastEurope' }
+      ]
+    },
+    {
+      q:'세금 정책에 귀족들이 크게 반발한다면?',
+      opts:[
+        { t:'의회와 계속 협상한다. 심하면 왕도 책임을 진다', v:'england' },
+        { t:'강한 군대로 반발을 눌러버린다', v:'france' },
+        { t:'귀족의 기존 지위(신분제)는 안 건드리고, 개혁 속도만 늦춘다', v:'eastEurope' }
+      ]
+    },
+    {
+      q:'왕의 권력을 어떤 모습으로 보여주고 싶나요?',
+      opts:[
+        { t:'의회와 함께 나라를 운영하는 모습', v:'england' },
+        { t:'화려한 궁전과 강력한 혼자만의 권력', v:'france' },
+        { t:'새로운 사상을 공부하며 "개혁하는 군주" 이미지', v:'eastEurope' }
+      ]
+    },
+    {
+      q:'이 개혁이 끝난 뒤, 나라의 신분 구조는 어떻게 되나요?',
+      opts:[
+        { t:'의회의 권한이 법으로 확실히 보장된다', v:'england' },
+        { t:'왕에게 권력이 집중되지만 귀족의 특권도 남아있다', v:'france' },
+        { t:'농노제 같은 오래된 신분 질서가 그대로 유지된다', v:'eastEurope' }
+      ]
+    }
+  ];
+
+  function $(id){ return document.getElementById(id); }
+
+  function qs(name){
+    var m = new RegExp('[?&]'+name+'=([^&]*)').exec(window.location.search);
+    return m ? decodeURIComponent(m[1].replace(/\+/g,' ')) : '';
+  }
+
+  var PREVIEW = qs('preview') === '1';
+
+  var state = {
+    sid:'', name:'',
+    answers: [],   // { q: index, v: 'england'|'france'|'eastEurope' }
+    resultType: '',
+    writing: ''
+  };
+
+  var STEPS = ['step-login','step-intro','step-quiz','step-result','step-writing','step-extend','step-done'];
+  var quizIdx = 0;
+
+  function showStep(id){
+    for (var i=0;i<STEPS.length;i++){
+      $(STEPS[i]).classList.toggle('active', STEPS[i]===id);
+    }
+    window.scrollTo(0,0);
+  }
+
+  function toast(msg){
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  }
+
+  function bindHint(btnId, boxId){
+    $(btnId).addEventListener('click', function(){
+      $(boxId).classList.toggle('show');
+    });
+  }
+
+  function fetchJsonRetry(url, options, retries, delay){
+    retries = retries==null ? 3 : retries;
+    delay = delay==null ? 700 : delay;
+    return fetch(url, options).then(function(res){
+      if (!res.ok) throw new Error('HTTP '+res.status);
+      return res.json();
+    }).catch(function(err){
+      if (retries <= 0) throw err;
+      return new Promise(function(resolve){ setTimeout(resolve, delay); })
+        .then(function(){ return fetchJsonRetry(url, options, retries-1, delay*1.5); });
+    });
+  }
+
+  /* ── 퀴즈 렌더 ── */
+  function renderQuiz(){
+    var item = QUIZ[quizIdx];
+    $('quizProgress').textContent = (quizIdx+1) + ' / ' + QUIZ.length;
+    $('quizQ').textContent = item.q;
+    var box = $('quizOpts');
+    box.innerHTML = '';
+    var marks = ['A','B','C'];
+    item.opts.forEach(function(opt, i){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt-card';
+      var picked = state.answers[quizIdx] && state.answers[quizIdx].v === opt.v;
+      if (picked) b.classList.add('selected');
+      b.innerHTML = '<span class="opt-mark">'+marks[i]+'</span>' + opt.t;
+      b.addEventListener('click', function(){
+        state.answers[quizIdx] = { q: quizIdx, v: opt.v };
+        if (quizIdx < QUIZ.length - 1){
+          quizIdx++;
+          renderQuiz();
+        } else {
+          computeResult();
+          showStep('step-result');
+        }
+      });
+      box.appendChild(b);
+    });
+    $('btnQuizBack').disabled = false;
+  }
+
+  function computeResult(){
+    var score = { england:0, france:0, eastEurope:0 };
+    state.answers.forEach(function(a){ if (a && score[a.v] !== undefined) score[a.v]++; });
+    var best = TIE_ORDER[0];
+    TIE_ORDER.forEach(function(k){ if (score[k] > score[best]) best = k; });
+    state.resultType = best;
+    state.score = score;
+
+    var r = RESULTS[best];
+    $('resultTag').textContent = r.tag;
+    $('resultTitle').textContent = r.title;
+    $('resultDesc').textContent = r.desc;
+    $('resultTerms').style.display = r.showTerms ? 'block' : 'none';
+  }
+
+  function submit(){
+    var btn = $('btnSubmit');
+    btn.disabled = true;
+    btn.textContent = '제출 중...';
+
+    var payload = {
+      studentId: state.sid,
+      studentName: state.name,
+      gameName: CONFIG.GAME_NAME,
+      choiceSummary: RESULTS[state.resultType].tag,
+      diffSummary: '',
+      reflection: state.writing,
+      choicesJson: JSON.stringify({ answers: state.answers, scores: state.score, resultType: state.resultType })
+    };
+
+    if (PREVIEW){
+      setTimeout(function(){ showStep('step-done'); }, 300);
+      return;
+    }
+
+    fetchJsonRetry(CONFIG.SHEET_WEBAPP_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      if (res.result !== 'success') throw new Error(res.message || '제출 실패');
+      showStep('step-done');
+    }).catch(function(err){
+      btn.disabled = false;
+      btn.textContent = '제출하기';
+      toast('제출에 실패했어. 잠시 후 다시 눌러줘. (' + err.message + ')');
+    });
+  }
+
+  function validateSid(v){ return /^[1-9][0-9]{4}$/.test(v.trim()); }
+
+  function init(){
+    if (PREVIEW) $('previewFlag').style.display = 'block';
+
+    var sidFromUrl = qs('sid');
+    var nameFromUrl = qs('name');
+    if (sidFromUrl) $('inSid').value = sidFromUrl;
+    if (nameFromUrl) $('inName').value = nameFromUrl;
+
+    bindHint('btnHintWriting','hintWriting');
+
+    $('btnLoginNext').addEventListener('click', function(){
+      var sid = $('inSid').value.trim();
+      var name = $('inName').value.trim();
+      var ok = true;
+      if (!validateSid(sid)){ $('errSid').classList.add('show'); ok = false; } else { $('errSid').classList.remove('show'); }
+      if (!name){ $('errName').classList.add('show'); ok = false; } else { $('errName').classList.remove('show'); }
+      if (!ok) return;
+      state.sid = sid; state.name = name;
+      showStep('step-intro');
+    });
+
+    $('btnIntroNext').addEventListener('click', function(){
+      quizIdx = 0;
+      renderQuiz();
+      showStep('step-quiz');
+    });
+
+    $('btnQuizBack').addEventListener('click', function(){
+      if (quizIdx > 0){
+        quizIdx--;
+        renderQuiz();
+      } else {
+        showStep('step-intro');
+      }
+    });
+
+    $('btnResultNext').addEventListener('click', function(){ showStep('step-writing'); });
+
+    $('btnWritingBack').addEventListener('click', function(){ showStep('step-result'); });
+    $('btnWritingNext').addEventListener('click', function(){
+      var v = $('inWriting').value.trim();
+      if (v.length < 12){ $('errWriting').classList.add('show'); return; }
+      $('errWriting').classList.remove('show');
+      state.writing = v;
+      showStep('step-extend');
+    });
+
+    $('btnExtendBack').addEventListener('click', function(){ showStep('step-writing'); });
+    $('btnSubmit').addEventListener('click', submit);
+
+    $('btnCopyWriting').addEventListener('click', function(){
+      var text = '[세금징수 유형: ' + RESULTS[state.resultType].tag + ']\n\n' + state.writing;
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){ toast('복사했어!'); }).catch(function(){ toast('복사에 실패했어.'); });
+      } else {
+        toast('이 브라우저에서는 복사가 지원되지 않아.');
+      }
+    });
+
+    showStep('step-login');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
