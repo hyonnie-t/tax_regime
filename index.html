@@ -3,26 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>재정 청문회 — 세금을 걷는 법</title>
+<title>재정 청문회 — 예측게임</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
-  /* 색상 근거: fiscal_reform(1부)과 같은 paper/page/ink/rule/seal-gold 토큰을 이어쓰고,
-   * 결과 화면에서만 세 유형을 구분하는 accent 3색을 추가한다 —
-   * england=navy(왕과 의회, 제도적 안정감), france=wine(태양왕의 위엄, 진한 적갈),
-   * eastEurope=olive(농노제·농경 사회의 정체된 느낌). 유형테스트 화면 자체는 3색을 안 써서
-   * "색으로 답이 보이는" 문제를 피하고, 결과가 나온 뒤에만 색을 준다. */
+  /* 색상 근거: history26 개별 웹앱 하우스 스타일(last_goryeo 등)의 paper/page/ink/rule/seal-gold
+   * 토큰을 그대로 잇는다. 국가별 accent 3색(england=navy/france=wine/eastEurope=olive)은
+   * 예측 단계에는 절대 노출하지 않고(색으로 답이 보이는 문제 방지), 공개된 뒤 요약표·확장질문
+   * 화면에서만 결과 구분용으로 쓴다. */
   :root{
-    --paper:#EAE3D3;
-    --page:#FBF8EF;
-    --ink:#2B2420;
-    --sub:#6b5f4f;
-    --rule:#d9cfb8;
-    --navy:#38456b;
-    --navy-pale:#e4e7ef;
-    --seal-gold:#B8863B;
+    --paper:#EAE3D3; --page:#FBF8EF; --ink:#2B2420; --sub:#6b5f4f; --rule:#d9cfb8;
+    --navy:#38456b; --navy-pale:#e4e7ef; --seal-gold:#B8863B;
     --england:#38456b; --england-pale:#e4e7ef;
     --france:#8a3a3a; --france-pale:#f3e2e0;
     --eastEurope:#5c6b3f; --eastEurope-pale:#e7ecdd;
@@ -31,117 +24,130 @@
   body{
     margin:0;
     font-family:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, #f6f1e2 0%, var(--paper) 55%, #ddd2b3 100%) fixed;
-    color:var(--ink);
-    font-size:16.5px;
-    line-height:1.7;
-    -webkit-tap-highlight-color:transparent;
+    background:radial-gradient(ellipse 80% 60% at 50% 0%, #f6f1e2 0%, var(--paper) 55%, #ddd2b3 100%) fixed;
+    color:var(--ink); font-size:16.5px; line-height:1.7; -webkit-tap-highlight-color:transparent;
   }
   .serif{font-family:"Noto Serif KR",serif;}
-
   .preview-banner{
-    background:#1f1a14; color:#f4ece0; text-align:center;
-    font-size:12.5px; font-weight:700; letter-spacing:.3px;
-    padding:9px; position:sticky; top:0; z-index:20; display:none;
+    background:#1f1a14; color:#f4ece0; text-align:center; font-size:12.5px; font-weight:700;
+    letter-spacing:.3px; padding:9px; position:sticky; top:0; z-index:20; display:none;
   }
-
-  .header{
-    background:#241d16;
-    color:#f2e9d5; padding:28px 20px 22px; text-align:center;
-    border-bottom:3px solid var(--seal-gold);
-  }
+  .header{ background:#241d16; color:#f2e9d5; padding:28px 20px 22px; text-align:center; border-bottom:3px solid var(--seal-gold); }
   .header .eyebrow{font-size:12px; font-weight:700; letter-spacing:1.6px; color:#d8b96f; opacity:.9;}
   .header .header-rule{width:34px; height:1px; background:var(--seal-gold); margin:14px auto; opacity:.8;}
   .header h1{margin:0 0 8px; font-size:21px; font-weight:700; font-family:"Noto Serif KR",serif; line-height:1.45;}
   .header p{margin:0; font-size:13.5px; font-style:italic; color:#c9baa0; opacity:.9;}
-
   .wrap{max-width:660px; margin:0 auto; padding:20px 16px 90px;}
   .screen{display:none;}
   .screen.active{display:block; animation:fadeUp .35s ease;}
   @keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
-
   .card{
-    background:var(--page); border:1px solid var(--rule);
-    border-radius:10px; padding:24px 20px; margin-bottom:16px;
+    background:var(--page); border:1px solid var(--rule); border-radius:10px; padding:24px 20px; margin-bottom:16px;
     box-shadow:0 1px 2px rgba(43,36,32,0.05), 0 10px 24px rgba(43,36,32,0.06);
   }
   .badge-chip{
-    display:inline-block; color:var(--seal-gold);
-    font-size:12px; font-weight:800; letter-spacing:1.4px;
+    display:inline-block; color:var(--seal-gold); font-size:12px; font-weight:800; letter-spacing:1.4px;
     padding:0 0 7px; margin-bottom:14px; border-bottom:1px solid var(--seal-gold);
   }
   h2{font-size:19px; margin:0 0 10px; font-weight:700; font-family:"Noto Serif KR",serif; line-height:1.5;}
   p{margin:0 0 10px;}
   .sub{color:var(--sub); font-size:14px; line-height:1.65;}
-
   label{display:block; font-weight:700; color:var(--sub); font-size:13px; margin:14px 0 6px;}
   input[type=text]{
-    width:100%; padding:14px 15px; font-size:16.5px; font-family:inherit;
-    border:1px solid var(--rule); border-radius:8px; background:var(--page); min-height:48px;
+    width:100%; padding:14px 15px; font-size:16.5px; font-family:inherit; border:1px solid var(--rule);
+    border-radius:8px; background:var(--page); min-height:48px;
   }
   input:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(56,69,107,0.14);}
   textarea{
-    width:100%; min-height:120px; padding:14px 15px; font-size:16px;
-    border:1px solid var(--rule); border-radius:8px; background:var(--page);
-    resize:vertical; font-family:inherit; line-height:1.7;
+    width:100%; min-height:120px; padding:14px 15px; font-size:16px; border:1px solid var(--rule);
+    border-radius:8px; background:var(--page); resize:vertical; font-family:inherit; line-height:1.7;
   }
   textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(56,69,107,0.14);}
-
+  textarea[readonly]{background:#efe9d9; color:#4a4030;}
   .btn{
-    display:block; width:100%; padding:15px 20px; font-size:16px; font-weight:700;
-    border:none; border-radius:8px; cursor:pointer; min-height:50px; margin-top:14px;
-    transition:transform .1s ease; font-family:inherit;
+    display:block; width:100%; padding:15px 20px; font-size:16px; font-weight:700; border:none;
+    border-radius:8px; cursor:pointer; min-height:50px; margin-top:14px; transition:transform .1s ease; font-family:inherit;
   }
   .btn:active{transform:scale(0.98);}
   .btn-primary{background:var(--navy); color:#f6f3ec; box-shadow:0 3px 10px rgba(56,69,107,0.3);}
   .btn-primary:disabled{background:#c9c2b3; color:#fff; cursor:not-allowed; box-shadow:none;}
   .btn-outline{background:transparent; color:var(--navy); border:1.5px solid var(--navy);}
-
   .hint-toggle{
-    display:inline-flex; align-items:center; gap:6px;
-    background:none; border:none; border-bottom:1px dashed var(--navy); color:var(--navy);
-    font-size:13px; font-weight:700; padding:8px 0 6px; cursor:pointer; margin:6px 0 0; font-family:inherit;
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+    border-bottom:1px dashed var(--navy); color:var(--navy); font-size:13px; font-weight:700;
+    padding:8px 0 6px; cursor:pointer; margin:6px 0 0; font-family:inherit;
   }
   .hint-box{
     display:none; background:var(--navy-pale); border-radius:0 8px 8px 0; border-left:3px solid var(--navy);
     padding:13px 15px; font-size:13.5px; font-style:italic; color:var(--sub); margin-top:8px; line-height:1.7;
   }
   .hint-box.open{display:block;}
-
+  .hint-box p{margin:0 0 8px;}
+  .hint-box p:last-child{margin-bottom:0;}
   .notice{
-    font-size:13px; color:var(--sub); background:rgba(184,134,59,.10);
-    border-left:3px solid var(--seal-gold); border-radius:0 8px 8px 0; padding:10px 13px; margin:0 0 14px;
+    font-size:13px; color:var(--sub); background:rgba(184,134,59,.10); border-left:3px solid var(--seal-gold);
+    border-radius:0 8px 8px 0; padding:10px 13px; margin:0 0 14px;
   }
+  .footnote{font-size:12px; color:var(--sub); margin:6px 0 14px;}
 
-  .quiz-progress{font-size:12.5px; color:var(--sub); font-weight:700; margin-bottom:6px;}
+  .round-progress{font-size:12.5px; color:var(--sub); font-weight:700; margin-bottom:6px;}
+  .cond-card{
+    border:1.5px solid var(--rule); border-radius:8px; background:var(--page); padding:13px 15px; margin-bottom:10px; font-size:14.5px; line-height:1.6;
+  }
+  .cond-card .cond-label{font-weight:800; font-size:12px; letter-spacing:.4px; color:var(--sub); margin-bottom:4px;}
 
   .option-list{display:flex; flex-direction:column; gap:10px; margin:10px 0 4px;}
   .option-card{
-    display:flex; align-items:flex-start; gap:12px;
-    border:1.5px solid var(--rule); border-radius:8px; background:var(--page);
-    padding:14px 15px; cursor:pointer; min-height:44px;
+    display:flex; align-items:flex-start; gap:12px; border:1.5px solid var(--rule); border-radius:8px;
+    background:var(--page); padding:14px 15px; cursor:pointer; min-height:44px;
     transition:border-color .15s ease, background .15s ease;
   }
   .option-card input[type=radio]{margin-top:3px; width:18px; height:18px; accent-color:var(--navy); flex-shrink:0;}
   .option-card span{font-size:15.5px; line-height:1.55;}
   .option-card.selected{border-color:var(--navy); background:var(--navy-pale);}
+  .option-card.locked{cursor:default; opacity:.65;}
 
-  .result-tag{
-    display:inline-block; font-weight:800; font-size:12.5px; letter-spacing:.4px;
-    color:#fff; border-radius:999px; padding:4px 14px; margin-bottom:10px;
+  .confidence-row{margin:16px 0 4px;}
+  .confidence-value{font-weight:800; color:var(--navy); font-size:14.5px; text-align:center; margin-bottom:8px;}
+  input[type=range]{
+    width:100%; height:8px; border-radius:4px; background:var(--rule); appearance:none; -webkit-appearance:none; margin:6px 0;
   }
-  .result-tag.england{background:var(--england);}
-  .result-tag.france{background:var(--france);}
-  .result-tag.eastEurope{background:var(--eastEurope);}
-  .result-title{font-family:"Noto Serif KR",serif; font-size:19px; font-weight:700; margin-bottom:8px;}
+  input[type=range]::-webkit-slider-thumb{
+    appearance:none; -webkit-appearance:none; width:48px; height:48px; border-radius:50%;
+    background:var(--navy); border:3px solid var(--page); box-shadow:0 2px 6px rgba(0,0,0,.25); cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:48px; height:48px; border-radius:50%; background:var(--navy); border:3px solid var(--page);
+    box-shadow:0 2px 6px rgba(0,0,0,.25); cursor:pointer;
+  }
+  input[type=range]:disabled::-webkit-slider-thumb{background:#a89b7d;}
+  .confidence-labels{display:flex; justify-content:space-between; font-size:11px; color:var(--sub); margin-top:2px;}
 
-  details.terms{
-    font-size:13px; color:var(--sub);
-    background:var(--navy-pale); border-radius:0 8px 8px 0; border-left:3px solid var(--navy);
-    padding:10px 13px; margin:8px 0 14px;
+  .flip-scene{perspective:1200px; margin:16px 0 6px;}
+  .flip-card{position:relative; width:100%; min-height:150px; transform-style:preserve-3d; transition:transform .6s ease;}
+  .flip-card.flipped{transform:rotateY(180deg);}
+  .flip-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:10px; padding:16px 17px;
+    border:1.5px solid var(--rule); display:flex; flex-direction:column; justify-content:center;
   }
-  details.terms summary{cursor:pointer; font-weight:700; color:var(--navy);}
+  .flip-front{background:var(--navy-pale);}
+  .flip-back{transform:rotateY(180deg); background:var(--page);}
+  .flip-face .f-label{font-weight:800; font-size:12px; letter-spacing:.4px; color:var(--sub); margin-bottom:6px;}
+  .flip-face .f-body{font-size:15px; line-height:1.6;}
+  .match-icon{font-size:22px; margin-right:6px;}
+
+  .summary-table{width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0 14px;}
+  .summary-table th, .summary-table td{border:1px solid var(--rule); padding:8px 9px; text-align:left; vertical-align:top;}
+  .summary-table th{background:var(--page); font-weight:800;}
+  .summary-table tr.pick{background:var(--navy-pale);}
+  .summary-table tr.pick td:first-child{position:relative;}
+  .pick-tag{display:inline-block; font-size:10.5px; font-weight:800; color:#fff; background:var(--navy); border-radius:999px; padding:1px 8px; margin-left:4px;}
+  .country-dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px;}
+  .country-dot.england{background:var(--england);} .country-dot.france{background:var(--france);} .country-dot.eastEurope{background:var(--eastEurope);}
+
+  .recap-box{border:1.5px solid var(--rule); border-radius:8px; background:var(--page); padding:14px 15px; margin:4px 0 14px; font-size:14px; line-height:1.7;}
+  .recap-box .r-row{margin-bottom:4px;}
+  .recap-box .r-row b{color:var(--sub); font-weight:700;}
 
   .compare-table{width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0 14px;}
   .compare-table th, .compare-table td{border:1px solid var(--rule); padding:8px 10px; text-align:left; vertical-align:top;}
@@ -156,17 +162,12 @@
 
   .term{text-decoration:underline dotted; text-decoration-color:var(--seal-gold); text-underline-offset:3px; cursor:pointer;}
   .term-tip{
-    position:fixed; left:0; right:0; bottom:-260px; max-height:45vh; overflow-y:auto;
-    background:#241d16; color:#f2e9d5; border-top:2px solid var(--seal-gold);
-    padding:16px 18px 22px; z-index:60; transition:bottom .25s ease;
-    box-shadow:0 -8px 24px rgba(0,0,0,.25);
+    position:fixed; left:0; right:0; bottom:-260px; max-height:45vh; overflow-y:auto; background:#241d16; color:#f2e9d5;
+    border-top:2px solid var(--seal-gold); padding:16px 18px 22px; z-index:60; transition:bottom .25s ease; box-shadow:0 -8px 24px rgba(0,0,0,.25);
   }
   .term-tip.open{bottom:0;}
   .term-tip-head{display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:16px; margin-bottom:8px;}
-  .term-tip-head button{
-    background:none; border:1px solid #6b5f4f; color:#f2e9d5; border-radius:14px;
-    padding:5px 13px; font-family:inherit; font-size:13px; cursor:pointer;
-  }
+  .term-tip-head button{background:none; border:1px solid #6b5f4f; color:#f2e9d5; border-radius:14px; padding:5px 13px; font-family:inherit; font-size:13px; cursor:pointer;}
   .term-tip-body{font-size:14.5px; line-height:1.7;}
 
   @media (min-width:760px){ body{font-size:17px;} }
@@ -184,8 +185,8 @@
 <div class="header">
   <div class="eyebrow">2학년 세계사 · 재정·군사 국가</div>
   <div class="header-rule"></div>
-  <h1 class="serif">재정 청문회 — 세금을 걷는 법</h1>
-  <p>같은 왕, 다른 선택</p>
+  <h1 class="serif">재정 청문회 — 예측게임</h1>
+  <p>같은 문제인데, 왜 다른 방식일까?</p>
 </div>
 
 <div class="wrap">
@@ -204,53 +205,78 @@
     </div>
   </div>
 
-  <!-- 화면 1: 안내 -->
+  <!-- 화면 1: 도입 -->
   <div class="screen" id="screen-intro">
     <div class="card">
-      <span class="badge-chip">화면 1 · 안내</span>
-      <h2>같은 왕, 다른 선택</h2>
-      <p id="introText">재정과 군사력을 다시 세우는 방법은 같아도, 나라마다 세금을 걷는 방식은 서로 달랐다. 아래 질문 4개에 답하면 당신이 어떤 유형의 왕인지 알 수 있다.</p>
-      <p class="sub">정답은 없다 — 지금 드는 생각대로 골라보자.</p>
-      <button class="btn btn-primary" id="toQuizBtn">시작하기</button>
+      <span class="badge-chip">화면 1 · 도입</span>
+      <h2>같은 도구, 다른 해법</h2>
+      <p>지난 시간에 배운 <span class="term" data-term="관료제">관료제</span>·<span class="term" data-term="상비군">상비군</span>·<span class="term" data-term="중상주의">중상주의</span>, 나라마다 이 도구를 다 쓰면서도 정치적으로 풀어낸 방식은 서로 달랐다.</p>
+      <p><b>같은 문제인데, 왜 세 나라는 다른 방식을 택했을까?</b></p>
+      <p class="sub">이제부터 영국·프랑스·동유럽, 세 나라의 조건을 보고 그 나라가 실제로 어떤 방식을 택했을지 예측해보자. 예측이 끝나면 바로 실제 역사가 공개된다.</p>
+      <button class="btn btn-primary" id="toRoundBtn">시작하기</button>
     </div>
   </div>
 
-  <!-- 화면 2: 퀴즈 -->
-  <div class="screen" id="screen-quiz">
+  <!-- 화면 2: 라운드 (동적 렌더) -->
+  <div class="screen" id="screen-round">
     <div class="card">
-      <span class="badge-chip">화면 2 · 유형 테스트</span>
-      <div class="quiz-progress" id="quizProgress">1 / 4</div>
-      <h2 id="quizQ"></h2>
-      <div class="option-list" id="quizOpts"></div>
+      <div class="round-progress" id="roundProgress">1 / 3 라운드</div>
+      <h2 id="roundCountry"></h2>
+      <div id="roundConds"></div>
+      <p class="footnote">※ 조건카드 문구는 교과서 내용을 구조 이해를 위해 재구성한 것으로, 원문 그대로의 인용은 아니다.</p>
+
+      <p class="sub"><b>이 나라는 재정 위기 앞에서 어떤 방식을 택했을까?</b></p>
+      <div class="option-list" id="roundOpts"></div>
+
+      <div class="confidence-row">
+        <label>확신도</label>
+        <div class="confidence-value" id="confValue">3 — 반반이다</div>
+        <input type="range" id="confSlider" min="1" max="5" value="3">
+        <div class="confidence-labels"><span>그냥 찍음</span><span>확신함</span></div>
+      </div>
+
+      <button class="btn btn-primary" id="revealBtn" disabled>예측 제출 · 실제 역사 확인하기</button>
+
+      <div class="flip-scene" id="flipScene" style="display:none;">
+        <div class="flip-card" id="flipCard">
+          <div class="flip-face flip-front">
+            <div class="f-label">내 예측</div>
+            <div class="f-body" id="flipMyPick"></div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="f-label" id="flipMatchLabel">실제 역사</div>
+            <div class="f-body" id="flipActual"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="nextRoundBtn" style="display:none;">다음</button>
     </div>
   </div>
 
-  <!-- 화면 3: 결과 -->
-  <div class="screen" id="screen-result">
+  <!-- 화면 3: 요약표 -->
+  <div class="screen" id="screen-summary">
     <div class="card">
-      <span class="badge-chip">화면 3 · 결과</span>
-      <div class="result-tag" id="resultTag"></div>
-      <div class="result-title" id="resultTitle"></div>
-      <p id="resultDesc"></p>
-      <details class="terms" id="resultTerms" style="display:none;">
-        <summary>용어로 더 알아보기</summary>
-        <p style="margin:8px 0 0;" id="resultTermsBody"></p>
-      </details>
-      <div class="notice">이 세 가지는 재정·군사 국가를 만드는 서로 다른 방식일 뿐이다. 어느 하나가 "진짜" 절대왕정이라거나, 셋 사이에 우열이 있는 게 아니다.</div>
+      <span class="badge-chip">화면 3 · 요약표</span>
+      <h2>세 나라, 내 예측 vs 실제</h2>
+      <table class="summary-table" id="summaryTable"></table>
+      <p class="sub" id="summaryPickNote"></p>
       <button class="btn btn-primary" id="toWritingBtn">다음</button>
     </div>
   </div>
 
-  <!-- 화면 4: 판단 근거 -->
+  <!-- 화면 4: 판단 근거 글쓰기 -->
   <div class="screen" id="screen-writing">
     <div class="card">
       <span class="badge-chip">화면 4 · 판단 근거</span>
-      <h2>선택 이유와 예상 결과</h2>
-      <p class="sub">왜 이 유형이 나에게 나왔는지 살펴보고, 이유와 앞으로 예상되는 정치적 결과를 3~4문장으로 적어보자.</p>
-      <textarea id="writingTxt" placeholder="예: 나는 세금 정책에 반발이 있을 때 ○○를 골랐다. 왜냐하면... 이런 방식이라면 앞으로..."></textarea>
+      <h2 id="writingTitle">이 나라를 다시 살펴보자</h2>
+      <div class="recap-box" id="writingRecap"></div>
+      <label>왜 그렇게 예측했는지, 실제와 왜 같았는지(또는 달랐는지) 3~4문장으로 적어보자</label>
+      <textarea id="writingTxt" placeholder="예: 나는 조건카드를 보고 ○○라고 예측했다. 왜냐하면... 실제로는..."></textarea>
       <button type="button" class="hint-toggle" id="hintToggle">💡 막막하면 힌트 보기</button>
       <div class="hint-box" id="hintBox">
-        스스로 이런 질문을 던져보자 — "이 왕은 시간이 지나면 권력이 세질까, 약해질까?", "귀족과 백성은 이 방식에 만족할까?"
+        <p>이 나라의 신분질서 조건이 다른 나라와 뭐가 달랐지?</p>
+        <p>권력구조 단서 중에 내가 놓친 게 있었나?</p>
       </div>
       <button class="btn btn-primary" id="toExtendBtn" disabled>다음</button>
     </div>
@@ -260,12 +286,13 @@
   <div class="screen" id="screen-extend">
     <div class="card">
       <span class="badge-chip">화면 5 · 확장 질문</span>
-      <h2>세 나라, 세 가지 방식</h2>
+      <h2>세 나라, 세 가지 결과</h2>
       <table class="compare-table">
-        <tr class="england"><th>영국형</th><td id="cmpEngland">왕과 의회의 협업 (단, 왕을 두 번 갈아치운 끝에)</td></tr>
-        <tr class="france"><th>프랑스형</th><td>왕에게 집중된 권력, 후반엔 재정 악화</td></tr>
-        <tr class="eastEurope"><th>동유럽형</th><td id="cmpEast">신분 질서는 유지한 채 위로부터의 개혁</td></tr>
+        <tr class="england"><th><span class="country-dot england"></span>영국</th><td>왕과 의회의 협업 — 단, 왕을 두 번 갈아치운 끝에</td></tr>
+        <tr class="france"><th><span class="country-dot france"></span>프랑스</th><td>왕에게 집중된 권력, 후반엔 재정 악화</td></tr>
+        <tr class="eastEurope"><th><span class="country-dot eastEurope"></span>동유럽</th><td>신분 질서는 유지한 채 위로부터의 개혁</td></tr>
       </table>
+      <div class="notice">이 세 가지는 재정·군사 국가를 만드는 서로 다른 방식일 뿐이다. 어느 하나가 "진짜" 절대왕정이라거나, 셋 사이에 우열이 있는 게 아니다.</div>
       <p>오늘 활동은 여기까지! 다음은 선생님과 함께 이야기해볼 질문이다:</p>
       <p><b>"왕과 의회의 협업, 이게 모든 사람에게 평등하게 이득이었을까?"</b></p>
       <p class="sub">정답은 없다 — 각자 생각을 들어보며 이야기를 나눠보자.</p>
@@ -292,69 +319,73 @@
  * ════════════════════════════════════════════════════════ */
 const CONFIG = {
   SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
-  // TODO(효니): 커리큘럼 시트에 이 문자열 그대로 activity id로 등록할 것. 재정 청문회 2부.
-  GAME_NAME: "재정군사국가_세금유형"
+  // TODO(효니): 커리큘럼 시트에 이 문자열 그대로 activity id로 등록할 것.
+  // v1의 "재정군사국가_세금유형"(유형테스트)을 대체하는 v2 예측게임 — 이름을 새로 잡았다.
+  GAME_NAME: "재정군사국가_예측게임"
 };
 
-const RESULTS = {
-  england:{
-    tag:"영국형", title:"영국형 — 왕과 의회가 함께",
-    desc:"세금을 걷으려면 의회의 동의가 필요하다. 하지만 이 협업은 한 번에 순탄하게 이뤄진 게 아니다. 세금 문제로 의회와 맞선 왕은 결국 처형당했고, 왕정이 돌아왔지만 다시 전제정치로 흐르자 이번엔 왕을 나라 밖으로 쫓아내고 새 왕을 세웠다. 그렇게 왕을 두 번이나 갈아치운 끝에야 의회의 권한을 법으로 보장하는 합의가 만들어졌다.",
-    showTerms:true,
-    termsBody: '이 사건들은 각각 <span class="term" data-term="청교도혁명">청교도혁명</span>(1649) · <span class="term" data-term="명예혁명">명예혁명</span>(1688) · <span class="term" data-term="권리장전">권리장전</span>(1689)이라고 부른다.'
+/* 정책 예측 선택지 3종 — 라운드(국가)와 무관하게 항상 이 순서·문구 그대로 재사용한다. */
+const OPTIONS = [
+  { v:"negotiate",   t:"왕과 의회가 타협한다" },
+  { v:"monopolize",  t:"왕이 권력을 독점한다" },
+  { v:"reformAbove", t:"신분질서는 유지한 채 위에서 개혁한다" }
+];
+const OPTION_LABEL = {};
+OPTIONS.forEach(o => OPTION_LABEL[o.v] = o.t);
+
+/* 라운드(국가)별 조건카드·정답·공개 텍스트 — 교과서 근거를 구조 이해용으로 재구성.
+ * ⚠️ 명예혁명·청교도혁명·권리장전 명칭은 효니 확인([9역05-01] 범위 밖)에 따라 어디에도 쓰지 않는다
+ * — 사건 서술(처형→공화정→왕정복고→전제정치→추방→새왕→법안승인)만 남기고 고유 명칭은 뺐다. */
+const ROUNDS = [
+  {
+    id:"england", name:"영국",
+    cond1:"의회에 진출한 지주·상인 계층이 있다",
+    cond2:"왕이 세금을 걷으려면 전통적으로 의회 동의가 필요했다",
+    actual:"negotiate",
+    reveal:"왕과 의회가 타협한다 — 하지만 한 번에 순탄하게 이뤄진 게 아니다. 세금 문제로 의회와 맞선 왕은 결국 처형당했고, 왕정이 돌아왔지만 다시 전제정치로 흐르자 이번엔 왕을 나라 밖으로 쫓아내고 새 왕을 세웠다. 그렇게 왕을 두 번(처형·추방)이나 갈아치운 끝에야 의회의 권한을 법으로 보장하는 합의가 만들어졌다."
   },
-  france:{
-    tag:"프랑스형", title:"프랑스형 — 왕에게 집중된 권력",
-    desc:"의회를 무시하고 왕이 직접 결정한다. 강한 상비군과 관료제로 나라 구석구석까지 왕의 명령이 미치게 했고, 베르사유 궁전 같은 화려한 궁전으로 권력을 과시했다. 하지만 통치 후반으로 갈수록 전쟁 비용과 사치로 재정은 오히려 나빠졌다.",
-    showTerms:false
+  {
+    id:"france", name:"프랑스",
+    cond1:"귀족·성직자 특권이 강하게 유지된다",
+    cond2:"왕이 의회 없이 상비군·관료제를 직접 통제한다",
+    actual:"monopolize",
+    reveal:"왕이 권력을 독점한다 — 강한 상비군과 관료제로 나라 구석구석까지 왕의 명령이 미치게 했고, 화려한 궁전으로 권력을 과시했다. 하지만 통치 후반으로 갈수록 잦은 전쟁과 사치로 재정은 오히려 나빠졌다."
   },
-  eastEurope:{
-    tag:"동유럽형", title:"동유럽형 — 위로부터의 개혁",
-    desc:"농노제 같은 오래된 신분 질서가 오래 유지되면서 재정·군사 국가로 발전하는 속도가 서유럽보다 늦었다. 그러다 계몽사상의 영향을 받은 계몽전제군주(프리드리히 2세, 표트르 대제 등)가 나서서 위로부터 개혁을 밀어붙였다.",
-    showTerms:false
+  {
+    id:"eastEurope", name:"동유럽",
+    cond1:"농노제가 오래도록 유지되고 있다",
+    cond2:"계몽사상 영향을 받은 군주가 개혁을 주도한다",
+    actual:"reformAbove",
+    reveal:"신분질서는 유지한 채 위에서 개혁한다 — 농노제 같은 오래된 신분 질서가 오래 유지되면서 재정·군사 국가로 발전하는 속도가 서유럽보다 늦었다. 그러다 계몽사상의 영향을 받은 계몽전제군주(프리드리히 2세, 표트르 대제 등)가 나서서 위로부터 개혁을 밀어붙였다."
   }
-};
-
-// 동점 시 우선순위: england > france > eastEurope (임의 기준 — 필요 시 조정)
-const TIE_ORDER = ["england","france","eastEurope"];
-
-const QUIZ = [
-  { q:"세금을 새로 걷으려면 누구의 허락을 받아야 하나요?", opts:[
-    { t:"의회의 동의가 있어야 걷을 수 있다", v:"england" },
-    { t:"왕이 혼자 결정하면 그걸로 끝이다", v:"france" },
-    { t:"귀족의 특권은 그대로 둔 채, 왕이 뽑은 관리가 나서서 걷는다", v:"eastEurope" }
-  ]},
-  { q:"세금 정책에 귀족들이 크게 반발한다면?", opts:[
-    { t:"의회와 계속 협상한다. 심하면 왕도 책임을 진다", v:"england" },
-    { t:"강한 군대로 반발을 눌러버린다", v:"france" },
-    { t:"귀족의 기존 지위(신분제)는 안 건드리고, 개혁 속도만 늦춘다", v:"eastEurope" }
-  ]},
-  { q:"왕의 권력을 어떤 모습으로 보여주고 싶나요?", opts:[
-    { t:"의회와 함께 나라를 운영하는 모습", v:"england" },
-    { t:"화려한 궁전과 강력한 혼자만의 권력", v:"france" },
-    { t:'새로운 사상을 공부하며 "개혁하는 군주" 이미지', v:"eastEurope" }
-  ]},
-  { q:"이 개혁이 끝난 뒤, 나라의 신분 구조는 어떻게 되나요?", opts:[
-    { t:"의회의 권한이 법으로 확실히 보장된다", v:"england" },
-    { t:"왕에게 권력이 집중되지만 귀족의 특권도 남아있다", v:"france" },
-    { t:"농노제 같은 오래된 신분 질서가 그대로 유지된다", v:"eastEurope" }
-  ]}
 ];
 
-/* 어려운 개념어 사전 — his_judge_goryeo/gongmin/last_goryeo의 GLOSSARY 패턴 재사용. */
+const CONFIDENCE_LABEL = { 1:"그냥 찍었다", 2:"조금 헷갈렸다", 3:"반반이다", 4:"꽤 확신했다", 5:"확신함" };
+
+/* 어려운 개념어 사전 — his_judge_goryeo/gongmin/last_goryeo의 GLOSSARY 패턴 재사용.
+ * 명예혁명 등 고유 명칭은 성취기준 범위 밖이라 의도적으로 넣지 않는다(효니 확인). */
 const GLOSSARY = {
-  "청교도혁명": "1649년 의회파가 왕 찰스 1세를 처형하고 공화정을 세운 사건.",
-  "명예혁명": "1688년 의회가 전제정치를 펴던 왕을 몰아내고 새 왕을 세운 사건.",
-  "권리장전": "1689년 의회의 권한을 법으로 보장한 문서.",
+  "관료제": "왕이 임명한 관리들이 세금 징수 같은 나랏일을 맡아보는 체제.",
+  "상비군": "전쟁이 없을 때도 평소에 유지하는 상시 군대.",
+  "중상주의": "무역과 상공업을 국가가 지원해 나라의 부를 키우려는 정책.",
   "계몽전제군주": "계몽사상의 영향을 받아 위로부터 개혁을 추진한 군주.",
-  "농노제": "영주에게 묶여 자유롭게 이동할 수 없던 농민 신분 제도.",
-  "베르사유 궁전": "루이 14세가 지은 화려한 궁전. 프랑스 왕권의 상징이다."
+  "농노제": "영주에게 묶여 자유롭게 이동할 수 없던 농민 신분 제도."
 };
 function escapeReg_(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 const GLOSSARY_RE = new RegExp(Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length).map(escapeReg_).join("|"), "g");
 function glossify_(str){
   if (!str) return str;
   return str.replace(GLOSSARY_RE, m => `<span class="term" data-term="${m}">${m}</span>`);
+}
+
+/* Fisher-Yates 셔플 — 라운드 제시 순서를 매 실행마다 랜덤화한다(효니 확인, 순서효과 방지). */
+function shuffle_(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 /* ── 화면 전환 ── */
@@ -372,73 +403,147 @@ function checkStart(){ startBtn.disabled = !(studentIdEl.value.trim() && student
 [studentIdEl, studentNameEl].forEach(el=>el.addEventListener("input", checkStart));
 startBtn.addEventListener("click", ()=> showScreen("screen-intro"));
 
-/* ── 화면 1 → 2 ── */
-let quizIdx = 0;
-const answers = [];
-document.getElementById("toQuizBtn").addEventListener("click", ()=>{
-  quizIdx = 0;
-  renderQuiz();
-  showScreen("screen-quiz");
+/* ── 화면 1 → 2: 라운드 순서 셔플 후 진행 상태 초기화 ── */
+let roundOrder = [];
+let roundIdx = 0;
+const results = []; // { id, name, prediction, confidence, actual, match }
+
+document.getElementById("toRoundBtn").addEventListener("click", ()=>{
+  roundOrder = shuffle_(ROUNDS);
+  roundIdx = 0;
+  renderRound();
+  showScreen("screen-round");
 });
 
-/* ── 화면 2: 퀴즈 렌더 (선택 즉시 다음 문항으로) ── */
-function renderQuiz(){
-  const item = QUIZ[quizIdx];
-  document.getElementById("quizProgress").textContent = (quizIdx+1) + " / " + QUIZ.length;
-  document.getElementById("quizQ").textContent = item.q;
-  const box = document.getElementById("quizOpts");
-  box.innerHTML = "";
-  const marks = ["A","B","C"];
-  item.opts.forEach((opt, i)=>{
+/* ── 화면 2: 라운드 렌더 ── */
+let currentPick = null;
+const confSlider = document.getElementById("confSlider");
+const confValue = document.getElementById("confValue");
+const revealBtn = document.getElementById("revealBtn");
+
+confSlider.addEventListener("input", ()=>{
+  confValue.textContent = confSlider.value + " — " + CONFIDENCE_LABEL[confSlider.value];
+});
+
+function renderRound(){
+  const r = roundOrder[roundIdx];
+  document.getElementById("roundProgress").textContent = (roundIdx+1) + " / " + ROUNDS.length + " 라운드";
+  document.getElementById("roundCountry").textContent = r.name;
+
+  const condsBox = document.getElementById("roundConds");
+  condsBox.innerHTML =
+    `<div class="cond-card"><div class="cond-label">조건카드 1 · 신분질서</div>${r.cond1}</div>` +
+    `<div class="cond-card"><div class="cond-label">조건카드 2 · 권력구조</div>${r.cond2}</div>`;
+
+  currentPick = null;
+  confSlider.value = 3;
+  confSlider.disabled = false;
+  confValue.textContent = "3 — 반반이다";
+  revealBtn.disabled = true;
+  revealBtn.style.display = "block";
+  document.getElementById("flipScene").style.display = "none";
+  document.getElementById("flipCard").classList.remove("flipped");
+  document.getElementById("nextRoundBtn").style.display = "none";
+
+  const optsBox = document.getElementById("roundOpts");
+  optsBox.innerHTML = "";
+  OPTIONS.forEach(opt=>{
     const label = document.createElement("label");
     label.className = "option-card";
-    if (answers[quizIdx] && answers[quizIdx].v === opt.v) label.classList.add("selected");
-    label.innerHTML = `<input type="radio" name="quizOpt" value="${opt.v}"><span><b>${marks[i]}</b> ${opt.t}</span>`;
+    label.innerHTML = `<input type="radio" name="roundOpt" value="${opt.v}"><span>${opt.t}</span>`;
     label.querySelector("input").addEventListener("change", ()=>{
-      answers[quizIdx] = { q: quizIdx, v: opt.v };
-      if (quizIdx < QUIZ.length - 1){
-        quizIdx++;
-        renderQuiz();
-      } else {
-        computeResult();
-        showScreen("screen-result");
-      }
+      currentPick = opt.v;
+      optsBox.querySelectorAll(".option-card").forEach(o=>o.classList.remove("selected"));
+      label.classList.add("selected");
+      revealBtn.disabled = false;
     });
-    box.appendChild(label);
+    optsBox.appendChild(label);
   });
 }
 
-let resultType = "";
-let score = {};
-function computeResult(){
-  score = { england:0, france:0, eastEurope:0 };
-  answers.forEach(a=>{ if (a && score[a.v] !== undefined) score[a.v]++; });
-  let best = TIE_ORDER[0];
-  TIE_ORDER.forEach(k=>{ if (score[k] > score[best]) best = k; });
-  resultType = best;
+revealBtn.addEventListener("click", ()=>{
+  const r = roundOrder[roundIdx];
+  const confidence = Number(confSlider.value);
+  const match = currentPick === r.actual;
 
-  const r = RESULTS[best];
-  const tagEl = document.getElementById("resultTag");
-  tagEl.textContent = r.tag;
-  tagEl.className = "result-tag " + best;
-  document.getElementById("resultTitle").textContent = r.title;
-  document.getElementById("resultDesc").textContent = r.desc;
-  const termsEl = document.getElementById("resultTerms");
-  if (r.showTerms){
-    termsEl.style.display = "block";
-    document.getElementById("resultTermsBody").innerHTML = r.termsBody;
+  results.push({ id:r.id, name:r.name, prediction:currentPick, predictionLabel:OPTION_LABEL[currentPick], confidence, actual:r.actual, actualLabel:OPTION_LABEL[r.actual], match });
+
+  // 제출 후 재시도 불가 — 옵션·슬라이더 잠그고 버튼도 숨김
+  document.querySelectorAll("#roundOpts .option-card").forEach(o=>{
+    o.classList.add("locked");
+    o.querySelector("input").disabled = true;
+  });
+  confSlider.disabled = true;
+  revealBtn.style.display = "none";
+
+  document.getElementById("flipMyPick").textContent = OPTION_LABEL[currentPick];
+  document.getElementById("flipMatchLabel").textContent = (match ? "✅ 일치 — 실제 역사" : "❓ 의외 — 실제 역사");
+  document.getElementById("flipActual").textContent = r.reveal;
+  document.getElementById("flipScene").style.display = "block";
+
+  requestAnimationFrame(()=>{
+    setTimeout(()=> document.getElementById("flipCard").classList.add("flipped"), 50);
+  });
+
+  document.getElementById("nextRoundBtn").style.display = "block";
+});
+
+document.getElementById("nextRoundBtn").addEventListener("click", ()=>{
+  if (roundIdx < ROUNDS.length - 1){
+    roundIdx++;
+    renderRound();
   } else {
-    termsEl.style.display = "none";
+    renderSummary();
+    showScreen("screen-summary");
   }
-}
-document.getElementById("toWritingBtn").addEventListener("click", ()=> showScreen("screen-writing"));
+});
 
-/* ── 힌트 토글 ── */
+/* ── 화면 3: 요약표 — 확신도 최저 라운드를 자동으로 판단근거 대상으로 고정(효니 확인) ──
+ * 동점이면 라운드 진행 순서상 먼저 나온 쪽을 그대로 쓴다(임의 기준, 필요 시 조정). */
+let pickedResult = null;
+
+function renderSummary(){
+  let lowest = results[0];
+  results.forEach(r=>{ if (r.confidence < lowest.confidence) lowest = r; });
+  pickedResult = lowest;
+
+  const table = document.getElementById("summaryTable");
+  let html = "<tr><th>국가</th><th>내 예측</th><th>확신도</th><th>실제</th><th>일치</th></tr>";
+  results.forEach(r=>{
+    const isPick = r.id === pickedResult.id;
+    html += `<tr class="${isPick ? 'pick' : ''}">` +
+      `<td><span class="country-dot ${r.id}"></span>${r.name}${isPick ? '<span class="pick-tag">✍️ 작성대상</span>' : ''}</td>` +
+      `<td>${r.predictionLabel}</td>` +
+      `<td>${r.confidence}</td>` +
+      `<td>${r.actualLabel}</td>` +
+      `<td>${r.match ? '✅ 일치' : '❓ 의외'}</td>` +
+      `</tr>`;
+  });
+  table.innerHTML = html;
+
+  document.getElementById("summaryPickNote").textContent =
+    `확신도가 가장 낮았던 "${pickedResult.name}" 라운드를 다음 화면에서 더 살펴본다.`;
+}
+document.getElementById("toWritingBtn").addEventListener("click", ()=>{
+  renderWritingRecap();
+  showScreen("screen-writing");
+});
+
+/* ── 화면 4: 판단 근거 글쓰기 — 내가 고른 답·확신도·실제를 다시 보여줘서
+ * (v1 tax_regime의 결함이었던 "쓸 자료 없음" 문제를 보완) 판단근거를 쓸 자료를 남긴다. ── */
+function renderWritingRecap(){
+  const r = pickedResult;
+  document.getElementById("writingTitle").textContent = r.name + " 라운드를 다시 살펴보자";
+  document.getElementById("writingRecap").innerHTML =
+    `<div class="r-row"><b>내 예측</b> ${r.predictionLabel} (확신도 ${r.confidence} — ${CONFIDENCE_LABEL[r.confidence]})</div>` +
+    `<div class="r-row"><b>실제 역사</b> ${r.actualLabel}</div>` +
+    `<div class="r-row"><b>일치 여부</b> ${r.match ? "✅ 일치했다" : "❓ 의외였다"}</div>`;
+}
+
 document.getElementById("hintToggle").addEventListener("click", ()=>{
   document.getElementById("hintBox").classList.toggle("open");
 });
 
-/* ── 화면 4: 글쓰기 검증 ── */
 const writingTxt = document.getElementById("writingTxt");
 const toExtendBtn = document.getElementById("toExtendBtn");
 writingTxt.addEventListener("input", ()=>{ toExtendBtn.disabled = writingTxt.value.trim().length < 12; });
@@ -448,16 +553,11 @@ toExtendBtn.addEventListener("click", ()=> showScreen("screen-extend"));
 function postWithRetry_(url, payload, triesLeft){
   triesLeft = (triesLeft == null) ? 3 : triesLeft;
   return fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
+    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
   })
   .then(res => res.json())
   .catch(err => {
-    if (triesLeft > 1) {
-      return new Promise(resolve => setTimeout(resolve, 700))
-        .then(() => postWithRetry_(url, payload, triesLeft - 1));
-    }
+    if (triesLeft > 1) return new Promise(resolve => setTimeout(resolve, 700)).then(() => postWithRetry_(url, payload, triesLeft - 1));
     throw err;
   });
 }
@@ -472,14 +572,20 @@ submitBtn.addEventListener("click", async ()=>{
   submitBtn.disabled = true;
   submitBtn.textContent = "제출 중...";
 
+  const matchCount = results.filter(r=>r.match).length;
   const payload = {
     studentId: studentIdEl.value.trim(),
     studentName: studentNameEl.value.trim(),
     gameName: CONFIG.GAME_NAME,
-    choiceSummary: RESULTS[resultType].tag,
+    choiceSummary: `일치 ${matchCount}/3 · 작성대상: ${pickedResult.name}`,
     diffSummary: "",
     reflection: writingTxt.value.trim(),
-    choicesJson: JSON.stringify({ answers, scores: score, resultType })
+    choicesJson: JSON.stringify({
+      roundOrder: roundOrder.map(r=>r.id),
+      results: results,
+      writingCountry: pickedResult.id,
+      writingText: writingTxt.value.trim()
+    })
   };
 
   if (!PREVIEW){
@@ -504,10 +610,9 @@ submitBtn.addEventListener("click", async ()=>{
   showScreen("screen-done");
 });
 
-/* ── 내가 쓴 글 복사하기 ── */
 document.getElementById("copyWritingBtn").addEventListener("click", async ()=>{
   const statusEl = document.getElementById("copyStatus");
-  const text = "[세금징수 유형: " + RESULTS[resultType].tag + "]\n\n" + writingTxt.value.trim();
+  const text = `[${pickedResult.name} 라운드 — 내 예측: ${pickedResult.predictionLabel} / 실제: ${pickedResult.actualLabel}]\n\n` + writingTxt.value.trim();
   try{
     if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(text);
     statusEl.textContent = "✅ 복사됐어!";
@@ -520,10 +625,9 @@ document.getElementById("copyWritingBtn").addEventListener("click", async ()=>{
 document.addEventListener("click", (e)=>{
   const t = e.target.closest(".term");
   if (!t) return;
-  const term = t.dataset.term;
-  const def = GLOSSARY[term];
+  const def = GLOSSARY[t.dataset.term];
   if (!def) return;
-  document.getElementById("termTipTitle").textContent = term;
+  document.getElementById("termTipTitle").textContent = t.dataset.term;
   document.getElementById("termTipBody").textContent = def;
   document.getElementById("termTip").classList.add("open");
 });
@@ -549,10 +653,6 @@ function init(){
     if (!name) studentNameEl.value = "교사미리보기";
     checkStart();
   }
-
-  const introEl = document.getElementById("introText");
-  introEl.innerHTML = glossify_(introEl.textContent);
-  document.getElementById("cmpEast").innerHTML = glossify_(document.getElementById("cmpEast").textContent);
 }
 
 /* ── 진입점: 모든 선언·바인딩이 끝난 뒤 마지막에 실행 ── */
